@@ -43,25 +43,29 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = (user as any).id;       // TS infers from our custom type
-        token.role = (user as any).role;
-        token.status = (user as any).status;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as "ADMIN" | "BUYER" | "PROVIDER";
-        session.user.status = token.status as "ACTIVE" | "BANNED";
-      }
-      return session;
-    },
+  async jwt({ token, user }) {
+    if (user) {
+      token.id = (user as any).id;
+      token.role = (user as any).role;
+      token.status = (user as any).status;
+    }
+    return token;
   },
-  pages: {
-    signIn: "/login",
-    error: "/login",
+  async session({ session, token }) {
+    if (session.user) {
+      (session.user as any).id = token.id as string;
+      (session.user as any).role = token.role as string;
+      (session.user as any).status = token.status as string;
+    }
+    return session;
   },
+  async redirect({ url, baseUrl }) {
+    // Redirect based on role after login
+    if (url.startsWith(baseUrl)) return url; // keep default for safe redirects
+    return baseUrl;
+  },
+},
+pages: {
+  signIn: "/login",
+},
 };
