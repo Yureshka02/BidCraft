@@ -44,5 +44,9 @@ const ProjectSchema = new Schema<IProject>(
   },
   { timestamps: true }
 );
+ProjectSchema.index({ createdAt: -1 });
+ProjectSchema.index({ deadline: 1 });
+ProjectSchema.index({ category: 1, deadline: 1 });
+ProjectSchema.index({ buyerId: 1, createdAt: -1 });
 
 export default models.Project || mongoose.model<IProject>("Project", ProjectSchema);

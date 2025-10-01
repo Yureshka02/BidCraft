@@ -3,28 +3,50 @@
 import { Form, Input, Button, DatePicker, InputNumber, Select, message } from "antd";
 import { useRouter } from "next/navigation";
 
+type FormValues = {
+  title: string;
+  description: string;
+  budgetMin: number;
+  budgetMax: number;
+  deadline: any; // Dayjs
+  category: string;
+};
+
 export default function NewProjectPage() {
   const router = useRouter();
 
-  const onFinish = async (values: any) => {
-    const res = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+  const onFinish = async (values: FormValues) => {
+    const payload = {
+      ...values,
+      // convert Dayjs -> ISO string for the API
+      deadline: values.deadline?.toISOString?.() ?? values.deadline,
+    };
 
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        // response might not be JSON on errors like 405
+        const ct = res.headers.get("content-type") || "";
+        const err = ct.includes("application/json") ? await res.json() : { error: await res.text() };
+        message.error(err.error || `Request failed (${res.status})`);
+        return;
+      }
+
       message.success("✅ Project posted successfully!");
       router.push("/projects");
-    } else {
-      const data = await res.json();
-      message.error(data.error || "Failed to post project");
+    } catch (e) {
+      message.error("Network error. Please try again.");
     }
   };
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow rounded">
-      <Form layout="vertical" onFinish={onFinish}>
+      <Form<FormValues> layout="vertical" onFinish={onFinish}>
         <Form.Item name="title" label="Title" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
