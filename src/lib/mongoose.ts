@@ -14,7 +14,8 @@ declare global {
   var mongooseCache: Cached | undefined;
 }
 
-let cached: Cached = global.mongooseCache || { conn: null, promise: null };
+// ✅ Use const because we never reassign cached
+const cached: Cached = global.mongooseCache || { conn: null, promise: null };
 
 export async function dbConnect(): Promise<Mongoose> {
   if (cached.conn) return cached.conn;

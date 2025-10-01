@@ -1,4 +1,4 @@
-import NextAuth, { DefaultSession, DefaultUser } from "next-auth";
+import { DefaultSession, DefaultUser } from "next-auth";
 
 declare module "next-auth" {
   interface User extends DefaultUser {
@@ -6,7 +6,7 @@ declare module "next-auth" {
     email: string;
     role: "ADMIN" | "BUYER" | "PROVIDER";
     status: "ACTIVE" | "BANNED";
-    password_hash?: string; // only used on server
+    password_hash?: string; // only used internally on server
   }
 
   interface Session {
