@@ -6,9 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:admin": "ts-node --project tsconfig.scripts.json --transpile-only src/scripts/create-admin.ts",
+    "seed:users": "ts-node --project tsconfig.scripts.json --transpile-only src/scripts/create-users.ts"
   },
   "dependencies": {
+    "@ant-design/nextjs-registry": "^1.1.0",
+    "antd": "^5.27.4",
     "bcryptjs": "^3.0.2",
     "dayjs": "^1.11.18",
     "mongodb": "^6.20.0",
@@ -21,12 +25,16 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.19.19",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "next-auth": "^4.24.11",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
