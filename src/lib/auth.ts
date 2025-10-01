@@ -17,49 +17,51 @@ export const authOptions: NextAuthOptions = {
         if (!creds?.email || !creds?.password) return null;
 
         await dbConnect();
-        const user = await User.findOne({ email: creds.email }).lean();
+        const user = await User.findOne({ email: creds.email }).lean<{
+          _id: string;
+          email: string;
+          password_hash: string;
+          role: "ADMIN" | "BUYER" | "PROVIDER";
+          status: "ACTIVE" | "BANNED";
+        }>();
 
-        if (!user || Array.isArray(user)) return null;
-        if ((user as any).status === "BANNED") {
+        if (!user) return null;
+        if (user.status === "BANNED") {
           throw new Error("Account banned");
         }
 
-        const ok = await bcrypt.compare(creds.password, (user as any).password_hash);
+        const ok = await bcrypt.compare(creds.password, user.password_hash);
         if (!ok) return null;
 
-        // ✅ Return only safe fields (not password_hash)
         return {
-          id: String((user as any)._id),
-          email: (user as any).email,
-          role: (user as any).role,
-          status: (user as any).status,
+          id: String(user._id),
+          email: user.email,
+          role: user.role,
+          status: user.status,
         };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Copy fields from user → token at login
       if (user) {
-        token.id = (user as any).id;
+        token.id = (user as any).id;       // TS infers from our custom type
         token.role = (user as any).role;
         token.status = (user as any).status;
       }
       return token;
     },
     async session({ session, token }) {
-      // Expose fields to client session
       if (session.user) {
-        (session.user as any).id = token.id as string;
-        (session.user as any).role = token.role as string;
-        (session.user as any).status = token.status as string;
+        session.user.id = token.id as string;
+        session.user.role = token.role as "ADMIN" | "BUYER" | "PROVIDER";
+        session.user.status = token.status as "ACTIVE" | "BANNED";
       }
       return session;
     },
   },
   pages: {
-    // You can override these if you create custom pages
     signIn: "/login",
-    error: "/login", // redirect on errors
+    error: "/login",
   },
 };
