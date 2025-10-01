@@ -1,20 +1,30 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
-let cached: any = (global as any)._mongoose || { conn: null, promise: null };
-(global as any)._mongoose = cached;
+const MONGODB_URI = process.env.MONGODB_URI!;
+if (!MONGODB_URI) throw new Error("Missing MONGODB_URI");
 
-export async function dbConnect() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("Missing MONGODB_URI");
+interface Cached {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
+}
 
+// Extend the global object to safely store our cached connection
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: Cached | undefined;
+}
+
+let cached: Cached = global.mongooseCache || { conn: null, promise: null };
+
+export async function dbConnect(): Promise<Mongoose> {
   if (cached.conn) return cached.conn;
+
   if (!cached.promise) {
-    cached.promise = mongoose.connect(uri, {
-      dbName: "bid_craft",
-      serverApi: { version: "1", strict: true, deprecationErrors: true },
-      serverSelectionTimeoutMS: 15000,
-    });
+    cached.promise = mongoose.connect(MONGODB_URI);
   }
+
   cached.conn = await cached.promise;
+  global.mongooseCache = cached;
+
   return cached.conn;
 }
