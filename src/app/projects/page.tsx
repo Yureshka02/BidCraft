@@ -99,7 +99,7 @@ export default function ProjectsOverviewPage() {
     {
       title: "Budget",
       key: "budget",
-      render: (_: any, r: ProjectRow) => `₹${r.budgetMin} – ₹${r.budgetMax}`,
+      render: (_: any, r: ProjectRow) => `$${r.budgetMin} – $${r.budgetMax}`,
       width: 160,
       sorter: true,
       sortOrder: sortKey === "budgetMax" ? sortOrder : undefined,
