@@ -8,15 +8,25 @@ export async function POST(req: NextRequest) {
 
   const { email, password, role } = await req.json();
 
-  if (!email || !password || !["BUYER","PROVIDER"].includes(role)) {
+  if (!email || !password || !["BUYER", "PROVIDER"].includes(role)) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const exists = await User.findOne({ email }).lean();
-  if (exists) return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+  if (exists) {
+    return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+  }
 
   const password_hash = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, password_hash, role });
+  const user = await User.create({
+    email,
+    password_hash,
+    role,
+    status: "ACTIVE",
+  });
 
-  return NextResponse.json({ _id: user._id, email: user.email, role: user.role }, { status: 201 });
+  return NextResponse.json(
+    { id: user._id, email: user.email, role: user.role },
+    { status: 201 }
+  );
 }
