@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
-import { Table, Input, Select, Space, Tag, Typography, Statistic, message } from "antd";
+import { Table, Input, Select, Space, Tag, Typography, Statistic, message, Button } from "antd";
+import { useSession } from "next-auth/react";
 
 const { Countdown } = Statistic;
 
@@ -41,12 +42,17 @@ const fetcher = async (url: string) => {
 };
 
 export default function ProjectsOverviewPage() {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+
   // Table state
   const [page, setPage] = useState(1);
   const [pageSize, setPgSize] = useState(10);
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [q, setQ] = useState("");
-  const [sortKey, setSortKey] = useState<"createdAt"|"deadline"|"budgetMax"|"budgetMin"|"bidsCount"|"lowestBid">("createdAt");
+  const [sortKey, setSortKey] = useState<
+    "createdAt" | "deadline" | "budgetMax" | "budgetMin" | "bidsCount" | "lowestBid"
+  >("createdAt");
   const [sortOrder, setSortOrder] = useState<"ascend" | "descend">("descend");
 
   const qs = useMemo(() => {
@@ -101,46 +107,19 @@ export default function ProjectsOverviewPage() {
       key: "budget",
       render: (_: any, r: ProjectRow) => `$${r.budgetMin} – $${r.budgetMax}`,
       width: 160,
-      sorter: true,
-      sortOrder: sortKey === "budgetMax" ? sortOrder : undefined,
-      onHeaderCell: () => ({
-        onClick: () => {
-          setSortKey("budgetMax");
-          setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-        },
-        style: { cursor: "pointer" },
-      }),
     },
     {
       title: "Bids",
       dataIndex: "bidsCount",
       key: "bidsCount",
       width: 90,
-      sorter: true,
-      sortOrder: sortKey === "bidsCount" ? sortOrder : undefined,
-      onHeaderCell: () => ({
-        onClick: () => {
-          setSortKey("bidsCount");
-          setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-        },
-        style: { cursor: "pointer" },
-      }),
     },
     {
       title: "Lowest Bid",
       dataIndex: "lowestBid",
       key: "lowestBid",
       width: 120,
-      render: (v: number | null | undefined) => (v != null ? `₹${v}` : "—"),
-      sorter: true,
-      sortOrder: sortKey === "lowestBid" ? sortOrder : undefined,
-      onHeaderCell: () => ({
-        onClick: () => {
-          setSortKey("lowestBid");
-          setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-        },
-        style: { cursor: "pointer" },
-      }),
+      render: (v: number | null | undefined) => (v != null ? `USD${v}` : "—"),
     },
     {
       title: "Deadline",
@@ -153,22 +132,28 @@ export default function ProjectsOverviewPage() {
           <Countdown value={new Date(iso).getTime()} format="D[d] HH[h] mm[m] ss[s]" />
         </Space>
       ),
-      sorter: true,
-      sortOrder: sortKey === "deadline" ? sortOrder : undefined,
-      onHeaderCell: () => ({
-        onClick: () => {
-          setSortKey("deadline");
-          setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-        },
-        style: { cursor: "pointer" },
-      }),
     },
     {
       title: "Status",
       dataIndex: "isOpen",
       key: "isOpen",
       width: 110,
-      render: (v: boolean) => (v ? <Tag color="green">Open</Tag> : <Tag color="red">Closed</Tag>),
+      render: (v: boolean) =>
+        v ? <Tag color="green">Open</Tag> : <Tag color="red">Closed</Tag>,
+    },
+    // 👇 New column for bidding button (only Providers see it)
+    {
+      title: "Action",
+      key: "action",
+      render: (_: any, r: ProjectRow) =>
+        userRole === "PROVIDER" && r.isOpen ? (
+          <Link href={`/projects/${r._id}/bid`}>
+            <Button type="primary" size="small">
+              Place Bid
+            </Button>
+          </Link>
+        ) : null,
+      width: 150,
     },
   ];
 
@@ -180,7 +165,10 @@ export default function ProjectsOverviewPage() {
         <Input.Search
           allowClear
           placeholder="Search title/description"
-          onSearch={(val) => { setQ(val); setPage(1); }}
+          onSearch={(val) => {
+            setQ(val);
+            setPage(1);
+          }}
           style={{ width: 320 }}
         />
         <Select
@@ -188,34 +176,15 @@ export default function ProjectsOverviewPage() {
           placeholder="Category"
           style={{ width: 200 }}
           value={category}
-          onChange={(val) => { setCategory(val); setPage(1); }}
+          onChange={(val) => {
+            setCategory(val);
+            setPage(1);
+          }}
           options={[
             { value: "design", label: "Design" },
             { value: "writing", label: "Writing" },
             { value: "coding", label: "Coding" },
           ]}
-        />
-        <Select
-          value={sortKey}
-          onChange={(val) => { setSortKey(val); setPage(1); }}
-          options={[
-            { value: "createdAt", label: "Newest" },
-            { value: "deadline", label: "Deadline" },
-            { value: "budgetMax", label: "Budget (max)" },
-            { value: "budgetMin", label: "Budget (min)" },
-            { value: "bidsCount", label: "Bids" },
-            { value: "lowestBid", label: "Lowest bid" },
-          ]}
-          style={{ width: 180 }}
-        />
-        <Select
-          value={sortOrder}
-          onChange={(val) => { setSortOrder(val); setPage(1); }}
-          options={[
-            { value: "descend", label: "Desc" },
-            { value: "ascend",  label: "Asc"  },
-          ]}
-          style={{ width: 120 }}
         />
       </Space>
 
@@ -229,11 +198,18 @@ export default function ProjectsOverviewPage() {
           pageSize,
           total: data?.total || 0,
           showSizeChanger: true,
-          onChange: (p, ps) => { setPage(p); setPgSize(ps); },
+          onChange: (p, ps) => {
+            setPage(p);
+            setPgSize(ps);
+          },
         }}
       />
 
-      {error ? <div style={{ marginTop: 8, color: "crimson" }}>Error: {String(error.message || error)}</div> : null}
+      {error ? (
+        <div style={{ marginTop: 8, color: "crimson" }}>
+          Error: {String(error.message || error)}
+        </div>
+      ) : null}
     </div>
   );
 }
