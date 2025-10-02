@@ -13,11 +13,23 @@ import {
   DollarOutlined
 } from "@ant-design/icons";
 
+// Move stats array to the top, before any hooks that use it
+const stats = [
+  { value: "50,000+", label: "Skilled Professionals", suffix: "+" },
+  { value: "$15M+", label: "Total Project Value", suffix: "M+" },
+  { value: "98%", label: "Client Satisfaction", suffix: "%" },
+  { value: "24/7", label: "Support Available", suffix: "" }
+];
+
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
+  const [animatedStats, setAnimatedStats] = useState(stats.map(() => 0));
   const sectionRef = useRef(null);
-  const sphereRef = useRef(null);
+  const statsRef = useRef(null);
+  const sphereRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number | undefined>(undefined);
 
+  // Intersection Observer for features section
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -35,33 +47,92 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  // Create rotating sphere effect
+  // Intersection Observer for stats animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Start counting animation when stats section is visible
+          stats.forEach((stat, index) => {
+            const target = getNumericValue(stat.value);
+            animateNumber(index, 0, target, 2000);
+          });
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Optimized rotating sphere effect
   useEffect(() => {
     const sphere = sphereRef.current;
     if (!sphere) return;
 
-    let animationFrame: number;
     let rotation = 0;
+    const rotationSpeed = 0.1; // Even slower for better performance
 
-    const animate = () => {
-      rotation += 0.2;
-      if (sphere) {
-        (sphere as HTMLElement).style.transform = `rotateY(${rotation}deg) rotateX(${rotation * 0.5}deg)`;
-      }
-      animationFrame = requestAnimationFrame(animate);
+    const animate = (timestamp: number) => {
+      rotation += rotationSpeed;
+      
+      // Use transform3d for hardware acceleration
+      sphere.style.transform = `rotate3d(0.3, 0.7, 0, ${rotation}deg)`;
+      
+      animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, []);
+
+  // Helper function to extract numeric value from stat string
+  const getNumericValue = (value: string) => {
+    if (value.includes('+')) return parseInt(value.replace(/[^0-9]/g, ''));
+    if (value.includes('%')) return parseInt(value.replace('%', ''));
+    if (value === '24/7') return 100; // Special case for 24/7, return as number
+    return parseInt(value.replace(/[^0-9]/g, ''));
+  };
+
+  // Number animation function
+  const animateNumber = (index: number, start: number, end: number, duration: number) => {
+    const startTime = performance.now();
+    
+    const updateNumber = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const currentValue = Math.floor(start + (end - start) * easeOutQuart);
+      
+      setAnimatedStats(prev => {
+        const newStats = [...prev];
+        newStats[index] = currentValue;
+        return newStats;
+      });
+
+      if (progress < 1) {
+        requestAnimationFrame(updateNumber);
+      }
+    };
+
+    requestAnimationFrame(updateNumber);
+  };
 
   const features = [
     {
       title: "Smart Matching",
-      description: "AI-powered project matching with the most relevant skilled professionals",
+      description: "Project matching with the most relevant skilled professionals",
       icon: "🎯"
     },
     {
@@ -76,18 +147,11 @@ export default function Home() {
     }
   ];
 
-  const stats = [
-    { value: "50,000+", label: "Skilled Professionals" },
-    { value: "$15M+", label: "Total Project Value" },
-    { value: "98%", label: "Client Satisfaction" },
-    { value: "24/7", label: "Support Available" }
-  ];
-
-  // Generate sphere dots
+  // Generate optimized sphere dots
   const generateSphereDots = () => {
     const dots = [];
-    const numDots = 150;
-    const radius = 200;
+    const numDots = 200; // Reduced for better performance
+    const radius = 400;
 
     for (let i = 0; i < numDots; i++) {
       const phi = Math.acos(-1 + (2 * i) / numDots);
@@ -112,7 +176,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-teal-500 rounded-lg"></div>
+              <div className="w-8 h-8 bg-teal-700 rounded-lg"></div>
               <span className="text-xl font-semibold text-white">BidCraft</span>
             </div>
             
@@ -134,38 +198,50 @@ export default function Home() {
                 type="primary" 
                 className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white"
               >
-                Get Started
+                Log In
+              </Button>
+                <Button 
+                type="primary" 
+                className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white"
+              >
+                Sign Up
               </Button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section with Black Background */}
-      <section className="pt-32 pb-20 px-6 text-center bg-black relative overflow-hidden">
-        {/* Rotating Sphere */}
+      {/* Hero Section - Full Screen */}
+      <section className="min-h-screen pt-20 pb-20 px-6 text-center bg-black relative overflow-hidden flex items-center justify-center">
+        {/* Optimized Rotating Sphere */}
         <div 
           ref={sphereRef}
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none"
-          style={{ perspective: '1000px' }}
+          style={{ 
+            perspective: '1000px',
+            transformStyle: 'preserve-3d',
+            willChange: 'transform'
+          }}
         >
           {sphereDots.map((dot, index) => (
             <div
               key={index}
-              className="absolute w-1 h-1 bg-teal-400/30 rounded-full"
+              className="absolute w-1.5 h-1.5 bg-teal-400/30 rounded-full"
               style={{
                 left: `calc(50% + ${dot.x}px)`,
                 top: `calc(50% + ${dot.y}px)`,
-                transform: `translateZ(${dot.z}px)`,
-                opacity: 0.3 + (dot.z + 500) / 900 * 0.9,
+                transform: `translate3d(0, 0, ${dot.z}px)`,
+                opacity: 0.3 + (dot.z + 400) / 800 * 0.7,
+                willChange: 'transform, opacity',
               }}
             />
           ))}
         </div>
 
         {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
 
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="inline-flex items-center space-x-2 bg-gray-900 rounded-full px-4 py-2 mb-8 border border-gray-800">
@@ -173,49 +249,48 @@ export default function Home() {
             <span className="text-sm text-gray-400">Now available to all users</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+          <h1 className="text-6xl md:text-8xl font-bold mb-8 tracking-tight">
             <span className="text-white">Craft Your</span>
             <br />
-            <span className="text-teal-500 bg-gradient-to-r from-teal-400 to-teal-600 bg-clip-text text-transparent">
+            <span className="text-teal-500 bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 bg-clip-text text-transparent">
               Success Story
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-2xl md:text-3xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
             The most elegant platform for connecting skilled professionals with meaningful projects. 
             Simple, secure, and sophisticated.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <Button 
-              type="primary" 
+              type="default"
               size="large" 
-              className="h-14 px-8 text-lg bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white rounded-lg transform hover:scale-105 transition-all duration-300"
-              icon={<RocketOutlined />}
+              className="h-16 px-10 text-xl bg-transparent border-2 border-teal-500 hover:bg-teal-500/10 text-teal-500 hover:text-teal-400 rounded-xl transform hover:scale-105 transition-all duration-300"
+              icon={<RocketOutlined className="text-teal-500" />}
             >
-              Start Bidding
+              Get Started
             </Button>
-           
+            
           </div>
-
-          
-       
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
+      {/* Stats Section with Animated Numbers */}
+      <section ref={statsRef} className="py-32 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {stats.map((stat, index) => (
               <div 
                 key={index} 
-                className="text-center transform hover:scale-105 transition-transform duration-300"
+                className="text-center transform hover:scale-110 transition-transform duration-500"
               >
-                <div className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2">
-                  {stat.value}
+                <div className="text-4xl md:text-4xl font-bold text-black dark:text-white mb-4">
+                  {stat.value.includes('$') && '$'}
+                  {animatedStats[index].toLocaleString()}
+                  {stat.suffix}
                 </div>
-                <div className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
+                <div className="text-gray-600 dark:text-gray-400 text-lg md:text-xl font-medium">
                   {stat.label}
                 </div>
               </div>
