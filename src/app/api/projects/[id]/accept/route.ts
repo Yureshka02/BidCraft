@@ -1,15 +1,15 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import mongoose, { Types } from "mongoose";
 import { dbConnect } from "@/lib/mongoose";
 import Project, { type IProject } from "@/models/Project";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-type Params = { params: { id: string } };
 
-export async function PATCH(req: Request, { params }: Params) {
+
+export async function PATCH(req: NextRequest, context: any) {
   try {
     await dbConnect();
 
@@ -18,7 +18,7 @@ export async function PATCH(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Only buyers can accept bids" }, { status: 403 });
     }
 
-    const projectId = params.id;
+    const projectId = context.params.id;
     if (!mongoose.isValidObjectId(projectId)) {
       return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
     }

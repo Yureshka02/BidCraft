@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import mongoose, { Types } from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -9,10 +9,10 @@ import User from "@/models/User";
 import MailLog from "@/models/MailLog";
 import { sendMail } from "@/lib/mailer";
 
-type Params = { params: { id: string } };
+
 
 // PATCH { action: "BAN" | "UNBAN", reason?: string }
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(req: NextRequest, context: any) {
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -20,7 +20,7 @@ export async function PATCH(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const userId = params.id;
+    const userId = context.params.id;
     if (!mongoose.isValidObjectId(userId)) {
       return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
     }

@@ -1,23 +1,30 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import mongoose, { Types } from "mongoose";
 import { dbConnect } from "@/lib/mongoose";
 import Project, { type IProject } from "@/models/Project";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-type Params = { params: { id: string } };
-
-export async function GET(_req: Request, { params }: Params) {
+/**
+ * GET (recommended) – return current bids + deadline + acceptedBid
+ * If you previously used PATCH here, you can keep PATCH as an alias,
+ * but GET semantics are a better fit for "read".
+ */
+export async function GET(req: NextRequest, context: any) {
   await dbConnect();
 
-  const projectId = params.id;
-  if (!mongoose.isValidObjectId(projectId)) {
+  const params =
+    context?.params && typeof context.params.then === "function"
+      ? await context.params
+      : context?.params;
+
+  const projectId = params?.id as string | undefined;
+  if (!projectId || !mongoose.isValidObjectId(projectId)) {
     return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
   }
 
-  // Ask for only the fields we need, and TELL TS the shape via lean<IProject>()
   const project = await Project.findById(projectId)
     .select({ bids: 1, deadline: 1, acceptedBid: 1 })
     .lean<IProject | null>();
@@ -32,7 +39,13 @@ export async function GET(_req: Request, { params }: Params) {
   });
 }
 
-export async function POST(req: Request, { params }: Params) {
+// If you still want PATCH to behave like GET (back-compat), keep this:
+export const PATCH = GET;
+
+/**
+ * POST – place a bid (providers only)
+ */
+export async function POST(req: NextRequest, context: any) {
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -40,12 +53,17 @@ export async function POST(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Only providers can bid" }, { status: 403 });
     }
 
-    const projectId = params.id;
-    if (!mongoose.isValidObjectId(projectId)) {
+    const params =
+      context?.params && typeof context.params.then === "function"
+        ? await context.params
+        : context?.params;
+
+    const projectId = params?.id as string | undefined;
+    if (!projectId || !mongoose.isValidObjectId(projectId)) {
       return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
     }
 
-    const { amount } = await req.json();
+    const { amount } = (await req.json()) as { amount: number };
     const bidAmount = Number(amount);
     if (!Number.isFinite(bidAmount) || bidAmount <= 0) {
       return NextResponse.json({ error: "Invalid bid amount" }, { status: 400 });
@@ -54,7 +72,7 @@ export async function POST(req: Request, { params }: Params) {
     const now = new Date();
     const provId = new Types.ObjectId(session.user.id);
 
-    // Try to push the bid only if all conditions hold atomically
+    // Atomically push bid only if conditions hold
     const updated = await Project.findOneAndUpdate(
       {
         _id: new Types.ObjectId(projectId),
@@ -73,7 +91,7 @@ export async function POST(req: Request, { params }: Params) {
     ).lean<IProject | null>();
 
     if (!updated) {
-      // figure out why it failed, give a specific message
+      // Diagnose why it failed for a precise message
       const p = await Project.findById(projectId)
         .select({ deadline: 1, buyerId: 1, bids: 1, acceptedBid: 1 })
         .lean<IProject | null>();
