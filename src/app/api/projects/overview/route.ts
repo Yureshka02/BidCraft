@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongoose";
 import Project from "@/models/Project";
 import mongoose from "mongoose";
+import User from "@/models/User";
 
 export async function GET(req: Request) {
   await dbConnect();
   const { searchParams } = new URL(req.url);
+
+  const _UserForOverview = User;
 
   const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
   const pageSize = Math.min(Math.max(parseInt(searchParams.get("pageSize") || "10"), 1), 50);

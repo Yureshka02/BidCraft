@@ -6,6 +6,7 @@ import { dbConnect } from "@/lib/mongoose";
 import Project, { type IProject } from "@/models/Project";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import User from "@/models/User";
 
 /**
  * GET (recommended) – return current bids + deadline + acceptedBid
@@ -15,6 +16,7 @@ import { authOptions } from "@/lib/auth";
 export async function GET(req: NextRequest, context: any) {
   await dbConnect();
 
+  const _UserForBids = User;
   const params =
     context?.params && typeof context.params.then === "function"
       ? await context.params
