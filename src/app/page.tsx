@@ -18,7 +18,7 @@ const stats = [
   { value: "50,000+", label: "Skilled Professionals", suffix: "+" },
   { value: "$15M+", label: "Total Project Value", suffix: "M+" },
   { value: "98%", label: "Client Satisfaction", suffix: "%" },
-  { value: "24/7", label: "Support Available", suffix: "" }
+  { value: "24/7", label: "Support Available", suffix: "%" }
 ];
 
 export default function Home() {
@@ -26,6 +26,7 @@ export default function Home() {
   const [animatedStats, setAnimatedStats] = useState(stats.map(() => 0));
   const sectionRef = useRef(null);
   const statsRef = useRef(null);
+  const featuresRef = useRef(null);
   const sphereRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
 
@@ -64,6 +65,31 @@ export default function Home() {
 
     if (statsRef.current) {
       observer.observe(statsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Intersection Observer for features animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const featureCards = entry.target.querySelectorAll('.feature-card');
+            featureCards.forEach((card, index) => {
+              setTimeout(() => {
+                card.classList.add('animate-feature-card');
+              }, index * 200);
+            });
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (featuresRef.current) {
+      observer.observe(featuresRef.current);
     }
 
     return () => observer.disconnect();
@@ -133,19 +159,32 @@ export default function Home() {
     {
       title: "Smart Matching",
       description: "Project matching with the most relevant skilled professionals",
-      icon: "🎯"
+      icon: "🎯",
+      color: "from-teal-300 to-teal-600",
+      shadow: "shadow-teal-500/25"
     },
     {
       title: "Live Bidding",
       description: "Real-time bidding system with instant notifications and updates",
-      icon: "⚡"
+      icon: "⚡",
+      color: "from-blue-300 to-blue-600",
+      shadow: "shadow-blue-500/50"
     },
     {
       title: "Secure Platform",
       description: "Enterprise-grade security with escrow protection for all transactions",
-      icon: "🔒"
+      icon: "🔒",
+      color: "from-yellow-300 to-yellow-600",
+      shadow: "shadow-purple-500/25"
     }
   ];
+
+  const footerLinks = {
+    platform: ["Features", "Pricing", "API", "Integrations"],
+    solutions: ["For Freelancers", "For Agencies", "For Enterprises", "Case Studies"],
+    support: ["Help Center", "Community", "Contact Us", "Documentation"],
+    company: ["About Us", "Careers", "Blog", "Press Kit"]
+  };
 
   // Generate optimized sphere dots
   const generateSphereDots = () => {
@@ -300,7 +339,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section ref={sectionRef} className="py-32 px-6">
+      <section ref={featuresRef} className="py-32 px-6 bg-white dark:bg-black">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-black dark:text-white">
@@ -311,24 +350,32 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className={`text-center transition-all duration-500 transform hover:scale-105 ${
-                  isVisible ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ animationDelay: `${index * 200}ms` }}
+                className="feature-card opacity-0 transform translate-y-8 transition-all duration-700 ease-out"
               >
-                <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl shadow-lg shadow-teal-500/25">
-                  {feature.icon}
+                <div className="group relative bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-800 hover:border-teal-500/30 hover:-translate-y-2">
+                  {/* Animated background gradient */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 rounded-3xl transition-opacity duration-500`}></div>
+                  
+                  {/* Floating icon container */}
+                  <div className={`relative w-20 h-20 bg-gradient-to-br ${feature.color} rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl ${feature.shadow} group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500`}>
+                    {feature.icon}
+                  </div>
+                  
+                  {/* Content */}
+                  <h3 className="text-2xl font-semibold mb-4 text-black dark:text-white text-center group-hover:text-teal-500 transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-center">
+                    {feature.description}
+                  </p>
+                  
+                  {/* Animated underline */}
+                  <div className="w-0 group-hover:w-12 h-0.5 bg-gradient-to-r from-teal-500 to-blue-500 mx-auto mt-4 transition-all duration-500"></div>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-black dark:text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {feature.description}
-                </p>
               </div>
             ))}
           </div>
@@ -368,28 +415,46 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-16 px-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-teal-500 rounded-lg"></div>
-                <span className="text-lg font-semibold text-black dark:text-white">BidCraft</span>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
+            {/* Company Info */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">BC</span>
+                </div>
+                <span className="text-xl font-bold text-black dark:text-white">BidCraft</span>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                The most elegant skill bidding platform, designed for professionals who demand excellence.
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed max-w-md">
+                The most elegant skill bidding platform, designed for professionals who demand excellence. 
+                Connect, collaborate, and create extraordinary projects.
               </p>
+              <div className="flex space-x-4 mt-6">
+                {['Twitter', 'LinkedIn', 'GitHub', 'Dribbble'].map((social) => (
+                  <a 
+                    key={social}
+                    href="#" 
+                    className="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-teal-500 hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700"
+                  >
+                    {social.charAt(0)}
+                  </a>
+                ))}
+              </div>
             </div>
             
-            {['Platform', 'Solutions', 'Support', 'Company'].map((category) => (
+            {/* Footer Links */}
+            {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
-                <h4 className="font-semibold text-black dark:text-white mb-4">{category}</h4>
-                <div className="space-y-2 text-sm">
-                  {Array.from({ length: 4 }).map((_, i) => (
+                <h4 className="font-semibold text-black dark:text-white mb-4 capitalize">
+                  {category}
+                </h4>
+                <div className="space-y-3 text-sm">
+                  {links.map((link, i) => (
                     <a 
                       key={i} 
                       href="#" 
-                      className="block text-gray-600 dark:text-gray-400 hover:text-teal-500 transition-colors transform hover:translate-x-1 duration-200"
+                      className="block text-gray-600 dark:text-gray-400 hover:text-teal-500 transition-colors duration-200 hover:translate-x-1 transform"
                     >
-                      Link {i + 1}
+                      {link}
                     </a>
                   ))}
                 </div>
@@ -397,10 +462,16 @@ export default function Home() {
             ))}
           </div>
           
-          <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-            <p className="text-gray-500 dark:text-gray-500 text-sm">
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-500 dark:text-gray-500 text-sm mb-4 md:mb-0">
               © 2024 BidCraft Inc. All rights reserved.
             </p>
+            <div className="flex space-x-6 text-sm">
+              <a href="#" className="text-gray-500 dark:text-gray-500 hover:text-teal-500 transition-colors">Privacy Policy</a>
+              <a href="#" className="text-gray-500 dark:text-gray-500 hover:text-teal-500 transition-colors">Terms of Service</a>
+              <a href="#" className="text-gray-500 dark:text-gray-500 hover:text-teal-500 transition-colors">Cookie Policy</a>
+            </div>
           </div>
         </div>
       </footer>
@@ -417,8 +488,23 @@ export default function Home() {
           }
         }
         
+        @keyframes feature-card-appear {
+          0% {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
         .animate-fade-in-up {
           animation: fade-in-up 0.6s ease-out forwards;
+        }
+
+        .animate-feature-card {
+          animation: feature-card-appear 0.8s ease-out forwards;
         }
 
         /* Custom scrollbar for webkit browsers */
