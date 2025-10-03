@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import mongoose from "mongoose";
 import { dbConnect } from "@/lib/mongoose";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 import ProjectClient from "./project-client";
 
 type Props = { params: { id: string } };

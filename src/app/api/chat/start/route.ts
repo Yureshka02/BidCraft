@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth";
 import { dbConnect } from "@/lib/mongoose";
 import mongoose, { Types } from "mongoose";
 import Conversation from "@/models/Conversation";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 
 export async function POST(req: NextRequest) {
   await dbConnect();

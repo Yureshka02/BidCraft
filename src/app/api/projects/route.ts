@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongoose";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 

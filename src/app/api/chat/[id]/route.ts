@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import Conversation from "@/models/Conversation";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 
 export async function GET(req: NextRequest, context: any) {
   await dbConnect();

@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/mongoose";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 import mongoose from "mongoose";
 import ProjectClient from "./project-client";
 

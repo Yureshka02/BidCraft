@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { dbConnect } from "@/lib/mongoose";
-import Project from "@/models/Project";
+import { Project, User } from "@/models";;
 import mongoose from "mongoose";
 
 export async function GET(_req: NextRequest) {
