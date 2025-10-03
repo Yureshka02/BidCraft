@@ -16,7 +16,7 @@ export default function ProviderLanding() {
   const projects = data?.items ?? [];
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
+    <div className="max-w-5xl mx-auto p-15">
       <Typography.Title level={2}>Projects I Bid On</Typography.Title>
 
       <Space style={{ marginBottom: 12 }}>
@@ -37,7 +37,7 @@ export default function ProviderLanding() {
               >
                 <div className="text-sm text-gray-600 mb-2">{p.description}</div>
                 <div className="text-sm mb-2">
-                  💰 Budget: USD{p.budgetMin} – USD{p.budgetMax} · 📅 Deadline:{" "}
+                  💰 Budget: ${p.budgetMin} – ${p.budgetMax} · 📅 Deadline:{" "}
                   {new Date(p.deadline).toLocaleString()}
                 </div>
 
