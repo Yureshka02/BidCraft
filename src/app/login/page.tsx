@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { ConfigProvider, theme } from "antd";
 import LoginForm from "./LoginForm"; // your component
 
@@ -24,7 +25,9 @@ export default function LoginPage() {
       }}
     >
       {/* Your existing background + form */}
+      <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
       <LoginForm />
+    </Suspense>
     </ConfigProvider>
   );
 }
