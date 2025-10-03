@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, models, model, Types } from "mongoose";
-import "@/models/User"; 
+import User from "@/models/User"; 
 
 export type Bid = {
   providerId: Types.ObjectId;

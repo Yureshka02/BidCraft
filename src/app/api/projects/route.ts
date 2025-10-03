@@ -3,9 +3,6 @@ import { dbConnect } from "@/lib/mongoose";
 import Project from "@/models/Project";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import User from "@/models/User";
-
-const _UserForRoot = User;
 
 export async function GET() {
   await dbConnect();

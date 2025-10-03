@@ -1,14 +1,11 @@
 "use client";
 
-import User from "@/models/User";
 import { useMemo, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { Button, Card, Form, InputNumber, List, Statistic, Tag, Typography, message } from "antd";
 
 const { Countdown } = Statistic;
-
-const _UserForProjectId = User;
 
 type Bid = { providerId: string; amount: number; createdAt: string };
 type AcceptedBid = { providerId: string; amount: number } | null;
