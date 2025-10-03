@@ -11,7 +11,7 @@ export default function Navbar() {
   const role = session?.user?.role; // "ADMIN" | "BUYER" | "PROVIDER"
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+    <nav className="fixed top-0 w-full z-50 bg-black backdrop-blur-md border-b border-gray-800">
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Brand */}
@@ -81,7 +81,7 @@ export default function Navbar() {
             {!session ? (
               <>
                 <Button
-                  size="middle"
+                  size="small"
                   type="default"
                   className="bg-transparent border-teal-500 text-teal-500 hover:bg-teal-500/10 hover:border-teal-400 hover:text-teal-400 transition-all duration-300"
                   onClick={() => router.push("/login")}
@@ -90,7 +90,7 @@ export default function Navbar() {
                   Log In
                 </Button>
                 <Button
-                  size="middle"
+                  size="small"
                   type="primary"
                   className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-teal-500/25"
                   onClick={() => router.push("/register")}
