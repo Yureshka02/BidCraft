@@ -385,7 +385,7 @@ export default function AdminClient() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6" style={{ background: 'linear-gradient(135deg, #f8ffff 0%, #f0f9f9 100%)', minHeight: '100vh' }}>
+    <div className="max-w-7xl mx-auto p-15" style={{ background: 'linear-gradient(135deg, #f8ffff 0%, #f0f9f9 100%)', minHeight: '100vh' }}>
       <Title 
         level={2} 
         style={{ 

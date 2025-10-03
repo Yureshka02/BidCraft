@@ -118,7 +118,7 @@ export default function ProjectClient({ project }: { project: Project }) {
               ]}
             >
               <List.Item.Meta
-                title={`USD${b.amount}${idx === 0 ? " (lowest)" : ""}`}
+                title={`$${b.amount}${idx === 0 ? " (lowest)" : ""}`}
                 description={new Date(b.createdAt).toLocaleString()}
               />
             </List.Item>

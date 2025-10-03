@@ -109,7 +109,7 @@ export default function ProjectClient({ project }: { project: Project }) {
               ]}
             >
               <List.Item.Meta
-                title={`USD${b.amount}${idx === 0 ? " (lowest)" : ""}`}
+                title={`$${b.amount}${idx === 0 ? " (lowest)" : ""}`}
                 description={new Date(b.createdAt).toLocaleString()}
               />
             </List.Item>
@@ -136,7 +136,7 @@ export default function ProjectClient({ project }: { project: Project }) {
                 },
               ]}
             >
-              <InputNumber min={1} placeholder="Your bid (USD)" />
+              <InputNumber min={1} placeholder="Your bid ($)" />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading}>

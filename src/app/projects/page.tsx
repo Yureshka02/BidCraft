@@ -119,7 +119,7 @@ export default function ProjectsOverviewPage() {
       dataIndex: "lowestBid",
       key: "lowestBid",
       width: 120,
-      render: (v: number | null | undefined) => (v != null ? `USD${v}` : "—"),
+      render: (v: number | null | undefined) => (v != null ? `$${v}` : "—"),
     },
     {
       title: "Deadline",

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button, Card } from "antd";
 import { 
   ArrowRightOutlined,
@@ -207,48 +208,11 @@ export default function Home() {
   };
 
   const sphereDots = generateSphereDots();
+    const router = useRouter();
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-teal-700 rounded-lg"></div>
-              <span className="text-xl font-semibold text-white">BidCraft</span>
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Platform</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Features</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Enterprise</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Support</a>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Button 
-                type="text" 
-                className="text-gray-300 hover:text-teal-500 border-gray-600 hover:border-teal-500"
-              >
-                Sign In
-              </Button>
-              <Button 
-                type="primary" 
-                className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white"
-              >
-                Log In
-              </Button>
-                <Button 
-                type="primary" 
-                className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white"
-              >
-                Sign Up
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+     
 
       {/* Hero Section - Full Screen */}
       <section className="min-h-screen pt-20 pb-20 px-6 text-center bg-black relative overflow-hidden flex items-center justify-center">

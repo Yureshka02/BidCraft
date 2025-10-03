@@ -49,7 +49,7 @@ export default function BidPage() {
       return;
     }
     if (lowest != null && vals.amount >= lowest) {
-      message.error(`Your bid must be lower than the current lowest (USD${lowest}).`);
+      message.error(`Your bid must be lower than the current lowest ($${lowest}).`);
       return;
     }
     try {
@@ -114,7 +114,7 @@ export default function BidPage() {
             </div>
             <div>
               <Text type="secondary">Current lowest</Text>
-              <div><Text strong>{lowest != null ? `USD${lowest}` : "— no bids yet —"}</Text></div>
+              <div><Text strong>{lowest != null ? `$${lowest}` : "— no bids yet —"}</Text></div>
             </div>
           </Space>
         </Card>
@@ -141,14 +141,14 @@ export default function BidPage() {
                       if (value == null) return Promise.resolve();
                       if (value <= 0) return Promise.reject("Amount must be greater than 0");
                       if (lowest != null && value >= lowest) {
-                        return Promise.reject(`Must be less than USD${lowest}`);
+                        return Promise.reject(`Must be less than $${lowest}`);
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
               >
-                <InputNumber min={1} placeholder="Amount (USD)" />
+                <InputNumber min={1} placeholder="Amount ($)" />
               </Form.Item>
               <Form.Item>
                 <Button type="primary" htmlType="submit" loading={loading}>
