@@ -271,6 +271,7 @@ export default function Home() {
               size="large" 
               className="h-16 px-10 text-xl bg-transparent border-2 border-teal-500 hover:bg-teal-500/10 text-teal-500 hover:text-teal-400 rounded-xl transform hover:scale-105 transition-all duration-300"
               icon={<RocketOutlined className="text-teal-500" />}
+              onClick={() => router.push("/register")}
             >
               Get Started
             </Button>

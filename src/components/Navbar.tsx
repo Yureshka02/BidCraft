@@ -82,22 +82,14 @@ export default function Navbar() {
               <>
                 <Button
                   size="small"
-                  type="default"
+                  type="primary"
                   className="bg-transparent border-teal-500 text-teal-500 hover:bg-teal-500/10 hover:border-teal-400 hover:text-teal-400 transition-all duration-300"
                   onClick={() => router.push("/login")}
                   icon={<UserOutlined />}
                 >
                   Log In
                 </Button>
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600 text-white transform hover:scale-105 transition-all duration-300 shadow-lg shadow-teal-500/25"
-                  onClick={() => router.push("/register")}
-                  icon={<RocketOutlined />}
-                >
-                  Sign Up
-                </Button>
+              
               </>
             ) : (
               <div className="flex items-center space-x-4">
